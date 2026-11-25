@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="zh-CN" data-ripple-floor data-await-entry>
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#080d15"><title>生日礼物 · 银箔撕条版</title>
+  <link rel="stylesheet" href="gacha.css"><link rel="stylesheet" href="transition.css"><link rel="stylesheet" href="birthday.css">
+  <script>window.CANDIDATE_C_MOTION=true;window.CANDIDATE_C_ENTRANCE=true;</script>
+  <script src="character/character-model.js" defer></script>
+  <script src="character/character-art-data.js" defer></script>
+  <script src="character/rig-0.js" defer></script>
+<script src="character/rig-1.js" defer></script>
+<script src="character/rig-2.js" defer></script>
+<script src="character/rig-3.js" defer></script>
+<script src="character/rig-4.js" defer></script>
+<script src="character/rig-5.js" defer></script>
+  <script src="character/glb-loader.js" defer></script>
+  <script src="gacha-core.js" defer></script><script src="birthday-textures.js" defer></script><script src="prism-sound.js" defer></script><script src="rare-reveal.js" defer></script><script src="scene-music-data.js" defer></script><script src="scene-music.js" defer></script><script src="firework-sample.js" data-swap-clips data-slow-show defer></script><script src="cake-geometry.js" defer></script><script src="birthday-foil.js" defer></script><script src="main-gacha.js" defer></script>
+  <style>
+    .title-heart { color:#ffc0d3 }
+    #deck .wish-card { background:transparent }
+    #deck .back {
+      border:0;
+      background:#f4dfbf url("design-samples/romance-birthday-v1/card-back-champagne-rose-vines.png") center / 100% 100% no-repeat;
+    }
+    #session { color:#f6dfb2 }
+    #session .eyebrow, #session #instruction, #session #progress-copy,
+    #session .close span { color:#d7bb92 }
+    #session .handle { color:#f1d6a7; filter:drop-shadow(0 0 6px #b0875859) }
+    #session .progress { background:#846f524f }
+    #session #progress-fill { background:#edcf9d; box-shadow:0 0 9px #c99f69 }
+    #session .close { color:#f4dbb1; border-color:#92775480; background:#241e18eb }
+    #session .close:hover { background:#3a2d21 }
+    #session :focus-visible { outline-color:#eacd9f }
+    .in-session #announcement { position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inset(50%); white-space:nowrap }
+    #intro { max-width:min(90vw,42em); color:#f4dfba }
+    #intro h1 em { color:#f1d4a4 }
+    #intro .eyebrow, #intro #mode-copy { color:#d8be98 }
+    main { background:radial-gradient(ellipse at 62% 57%,#242526,#191a1c 62%,#101113) }
+    #scene { transition:opacity .65s ease-out }
+    [data-await-entry] #scene { opacity:0; pointer-events:none }
+    [data-await-entry] #touch-move { visibility:hidden }
+    @media(max-width:760px) { #birthday-entry { top:auto; bottom:8%; transform:translateX(-50%) } }
+    @media(prefers-reduced-motion:reduce) { #scene { transition:none } }
+    #pack-prompt { pointer-events:auto }
+  </style>
+</head>
+<body>
+<main>
+  <canvas id="scene" aria-label="可以操控人物并打开礼物的三维空间"></canvas>
+  <div class="vignette"></div><div id="dim"></div>
+  <header><a class="brand" href="./index.html"><span>❤</span> FOREVER LOVE</a><span class="edition">TO MY BEST BEST BABY</span></header>
+  <nav hidden class="modes" aria-label="展示模式"><button id="mode-a" aria-pressed="true">A <span>空间里的礼物</span></button><button id="mode-b" aria-pressed="false">B <span>掌心里的惊喜</span></button></nav>
+  <button type="button" id="pack-prompt" hidden>按E解锁</button><section id="intro"><p class="eyebrow">A LITTLE SOMETHING, JUST FOR YOU</p><h1>我的爱爱宝贝<br><em>生日快乐<span class="title-heart">❤</span>~<br>๑&gt;ᴗ&lt;๑</em></h1><p id="mode-copy">一点一点为你做出来的心意意呀</p></section>
+  <button id="fireworks" type="button" hidden disabled>✧ 放烟花 <kbd>F</kbd></button>
+  <section id="session" hidden role="dialog" aria-modal="true" aria-labelledby="session-title">
+    <div class="session-heading"><h2 id="session-title">猜猜里面是什么么，开开叭<span class="title-heart">❤</span></h2><p id="instruction">慢慢一点撕开喔</p></div>
+    <button id="close" class="close" aria-label="关闭抽卡，返回场景">✕ <span>ESC</span></button>
+    <div id="tear-zone" role="slider" tabindex="0" aria-label="向左拖动封条撕开包装；也可使用方向键" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span class="handle" id="tear-handle">← <span>向左撕开</span></span></div>
+    <div id="deck" hidden></div><div class="session-bottom"><div class="progress"><span id="progress-fill"></span></div><p id="progress-copy">封口完好 · 0%</p><div class="actions"><button id="replay" hidden>再拆一次</button><button id="done" hidden>收下这份心意 ↗</button></div></div>
+  </section>
+  <footer><div id="world-controls" hidden><span><kbd>W A S D</kbd> 移动</span><span><kbd>SPACE</kbd> 跳跃</span><span>拖动 · 环顾四周</span></div></footer>
+  <div id="touch-move" aria-label="触屏移动"><button data-move="KeyW" aria-label="前进">↑</button><button data-move="KeyA" aria-label="左移">←</button><button data-move="KeyS" aria-label="后退">↓</button><button data-move="KeyD" aria-label="右移">→</button><button data-move="Space" aria-label="跳跃">↥</button></div>
+  <div class="telemetry" hidden><strong id="status"></strong><strong id="speed"></strong><strong id="position"></strong></div>
+  <div id="announcement" role="status" aria-live="polite"></div>
+  <div id="fallback" hidden><h2>无法启动 3D 场景</h2><p>请使用开启图形加速的新版 Edge 或 Chrome。</p></div>
+</main>
+<button type="button" class="music-entry" id="birthday-entry">进入生日空间 ♪</button>
+<script>
+  window.birthdayEntry = new Promise(resolve => {
+    const button = document.getElementById('birthday-entry');
+    button.addEventListener('click', () => {
+      window.sceneMusic?.context.resume().catch(() => {});
+      document.documentElement.removeAttribute('data-await-entry');
+      button.hidden = true;
+      resolve();
+    }, {once:true});
+  });
+</script>
+</body></html>
